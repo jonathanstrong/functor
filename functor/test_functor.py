@@ -1,4 +1,4 @@
-from functor import functor
+from functor import functor, static
 from toolz import compose, curry
 import numpy as np
 
@@ -43,28 +43,18 @@ def test_basic_functionality():
     assert use_local_name() == 1
     assert b.use_local_name() == 2
 
-#def test_default_init():
-#
-#    @functor
-#    def B():
-#
-#        def get_args(self):
-#            return self.args, self.kwargs 
-#        
-#        return locals()
-#
-#    b = B()
-#
-#    args, kwargs = b.get_args()
-#
-#    assert args == ()
-#    assert kwargs == {}
-#
-#    b = B(1, 2, 3, a=1)
-#
-#    args, kwargs = b.get_args()
-#
-#    assert np.allclose(args, [1,2,3])
-#    assert kwargs == {'a': 1}
 
+def test_magic_method():
+
+    @functor
+    def One(x, y):
+        def __call__(z):
+            return x + y + z
+        return locals()
+    
+    one = One(1, 1)
+
+    #import pdb; pdb.set_trace()
+
+    assert one(1) == 3
 

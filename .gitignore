@@ -1,2 +1,6 @@
 .cache
-distribute_setup.pyc
+*.pyc
+*.swp
+distribute-0.6.10-py2.7.egg
+distribute-0.6.10.tar.gz
+Functor.egg-info/

@@ -40,7 +40,19 @@ Rules:
       return x * x
     return locals()
   ```
-- At this time, the object returned is not (and cannot be made) callable itself. 
+- If you define a `__call__` function in the body of a `functor`-decorated function, the object returned from the initial call is itself callable. Unlike the magic `__call__`, there is no `self` to speak of; the function is like a `staticmethod` method.   
+  
+  Example:
+  
+  ```python
+  @functor
+  def add(x, y):
+      def __call__(z):
+          return x + y + z
+  
+  a = add(1, 1)
+  a(1) # -> 3
+  ```
 
 Example use: 
 

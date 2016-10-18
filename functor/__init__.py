@@ -1,4 +1,4 @@
-from prototype import constructor
+from toolz import curry
 import inspect
 import logging
 
@@ -11,18 +11,6 @@ def copy_func(f, name=None):
     return types.FunctionType(f.func_code, f.func_globals, name or f.func_name,
         f.func_defaults, f.func_closure)
 
-def functor(f):
-    def inner(*args, **kwargs):
-        f = copy_func(inner.f)
-        attrs = f(*args, **kwargs)
-        for name in attrs.keys():
-            setattr(f, name, attrs[name])
-        return f
-    inner.f = f
-    return inner
-
-
-
 def static(fn):
     """for some reason the builtin staticmethod 
     only seems to work as a decorator, not when
@@ -31,14 +19,35 @@ def static(fn):
         return fn(*args, **kwargs)
     return inner
 
+def is_magic_method(name):
+    return name.startswith('__') and name.endswith('__')
+
+
+
+def functor(f):
+    def inner(*args, **kwargs):
+        f = copy_func(inner.f)
+        attrs = f(*args, **kwargs)
+        if '__call__' in attrs:
+            f = copy_func(attrs['__call__'])
+            del attrs['__call__']
+
+        for name in attrs.keys():
+            if is_magic_method(name):
+                raise TypeError('Operation not permitted.')
+            else:
+                setattr(f, name, attrs[name])
+        return f
+    inner.f = f
+    return inner
+
+
+
 def arg_names(f):
     try:
         return inspect.getargspec(f)[0]
     except TypeError:
         return inspect.getargspec(f.__call__)[0]
-
-def is_magic_method(name):
-    return name.startswith('__') and name.endswith('__')
 
 #def default_init(self, *args, **kwargs):
 #    self.args = args
