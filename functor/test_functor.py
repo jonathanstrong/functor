@@ -27,6 +27,8 @@ def a(x):
     
     def use_local_name():
         return 2
+
+    local_name_result = use_local_name()
         
     return locals()
 
@@ -42,9 +44,10 @@ def test_basic_functionality():
     assert b.use_param() == 2
     assert use_local_name() == 1
     assert b.use_local_name() == 2
+    assert b.local_name_result == 2
 
 
-def test_magic_method():
+def test_magic___call___method():
 
     @functor
     def One(x, y):
