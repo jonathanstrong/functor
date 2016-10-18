@@ -5,7 +5,7 @@ Implements a function-object pattern in Python.
 
 Inspired by Toby Ho's [prototype.py](https://github.com/airportyh/misc/tree/master/prototype.py), the `functor` decorator let you define variables and functions in an isolated scope with a great deal of flexibility.
 
-The main advantages to this are 1) readability: at some point you realize `self.` this and `self.` that is somewhat annoying, and 2) all the encapsulation of a class with none of the state. 
+The main advantages to this are 1) readability: at some point you realize `self.` this and `self.` that is somewhat annoying, and 2) all the encapsulation of a class with none of the oop-style state. 
 
 Initially I found it frustrating to try to mimic this pattern in Python. The key is having the decorated function `return locals()`. In a way, this is very Pythonic because it's explciit. 
 
@@ -30,7 +30,7 @@ def f(a, b):
 g = f(1, 2)
 g.a     # -> 1
 g.d()   # -> 4
-g(5)    # -> 1 + 2 + 3 + (1 + 3) + 5 = 14
+g(5)    # -> 1 + 2 + 3 + (1 + 3) + 5 = 15
 ```
 
 Each instantiated function-object has its own local scope, like you'd expect (but was one of the more difficult aspects to implement). 
