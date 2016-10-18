@@ -61,3 +61,23 @@ def test_magic___call___method():
 
     assert one(1) == 3
 
+
+def test_docs_example():
+
+    @functor
+    def f(a, b):
+        c = 3
+
+        def d():
+            return a + c
+
+        def __call__(e):
+            return a + b + c + d() + e
+
+        return locals()
+
+    g = f(1, 2)
+    assert g.a == 1
+    assert g.d() == 4
+    assert g(5) == 15
+
