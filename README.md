@@ -74,6 +74,30 @@ Rules:
   a = add(1, 1)
   a(1) # -> 3
   ```
+- One pitfall to watch out for is that you can't modify a variable in a scope above the current one through assignment, because Python thinks you are assigning a variable in the current scope. For example:
+  ```python
+  @functor
+  def A():
+      one = 1
+
+      def side_effect():
+          one = 2 # does not change A.one, merely sets one inside A.side_effect
+
+      return locals()
+  ```
+  Honestly, that's a dangerous way to program anyway, but if you were expecting the same behavior as javascript or a language where you declare variables, this might drive you nuts for a few minutes. 
+
+  If you want to mutate something in a scope above the current scope, you need to act on an attribute or key of that object, like this: 
+  ```python
+  @functor
+  def A():
+      one = {'a': 1}
+
+      def side_effect():
+          one['a'] = 2
+
+      return locals()
+  ```
 
 Extended example: 
 

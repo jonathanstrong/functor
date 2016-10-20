@@ -1,4 +1,4 @@
-from toolz import curry
+from toolz import curry, memoize
 import inspect
 import logging
 
@@ -22,12 +22,18 @@ def static(fn):
 def is_magic_method(name):
     return name.startswith('__') and name.endswith('__')
 
-
+def identity(x):
+    return x
 
 def functor(f):
     def inner(*args, **kwargs):
         f = copy_func(inner.f)
+
         attrs = f(*args, **kwargs)
+
+        if not(isinstance(attrs, dict)):
+            raise TypeError('Functions decorated with @functor must return locals()') 
+
         if '__call__' in attrs:
             f = copy_func(attrs['__call__'])
             del attrs['__call__']
@@ -35,11 +41,73 @@ def functor(f):
         for name in attrs.keys():
             if is_magic_method(name):
                 raise TypeError('Operation not permitted.')
-            else:
+
+            if callable(attrs[name]):
                 setattr(f, name, attrs[name])
         return f
+
+    inner.f = f
+    
+    return inner
+
+def readable(f):
+    """like functor, but non-callable variables are readable as well. 
+    please note that mutating a variable from outside a readble, while
+    appearing to work, does not change the value of the variable inside
+    the closure of a function defined inside the readable."""
+    def inner(*args, **kwargs):
+        f = copy_func(inner.f)
+
+        attrs = f(*args, **kwargs)
+
+        if not(isinstance(attrs, dict)):
+            raise TypeError('Functions decorated with @functor must return locals()') 
+
+        if '__call__' in attrs:
+            f = copy_func(attrs['__call__'])
+            del attrs['__call__']
+
+        for name in attrs.keys():
+            if is_magic_method(name):
+                raise TypeError('Operation not permitted.')
+
+            setattr(f, name, attrs[name])
+        return f
+
+    inner.f = f
+    
+    return inner
+
+
+
+def pure(f):
+    "like functor, but applies memoize to every function"
+    def inner(*args, **kwargs):
+        f = copy_func(inner.f)
+
+        attrs = f(*args, **kwargs)
+
+        if not(isinstance(attrs, dict)):
+            raise TypeError('Functions decorated with @pure must return locals()') 
+
+        if '__call__' in attrs:
+            f = copy_func(attrs['__call__'])
+            del attrs['__call__']
+
+        for name in attrs.keys():
+            if is_magic_method(name):
+                raise TypeError('Operation not permitted.')
+
+            if callable(attrs[name]):
+                attrs[name] = memoize(attrs[name])
+                setattr(f, name, attrs[name])
+
+        return f
+
+    #inner.f = copy_func(f)
     inner.f = f
     return inner
+
 
 
 
